@@ -19,8 +19,11 @@ const pageRoutes: Record<string, string> = {
   ManagePartners: '/admin/partners',
   PartnerWalletManagement: '/admin/partner-wallets',
   ScoreRepairRequests: '/admin/score-repair',
+  TransactionHistory: '/admin/transactions',
   PartnerDashboard: '/partner/dashboard',
   PartnerReports: '/partner/reports',
+  PartnerClients: '/partner/clients',
+  PartnerMarketing: '/partner/marketing',
   AuthRedirect: '/auth-redirect',
 };
 

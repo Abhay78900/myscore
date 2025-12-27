@@ -38,8 +38,11 @@ const App = () => (
           <Route path="/admin/partners" element={<MasterAdminDashboard />} />
           <Route path="/admin/partner-wallets" element={<MasterAdminDashboard />} />
           <Route path="/admin/score-repair" element={<MasterAdminDashboard />} />
+          <Route path="/admin/transactions" element={<MasterAdminDashboard />} />
           <Route path="/partner/dashboard" element={<PartnerDashboard />} />
           <Route path="/partner/reports" element={<PartnerDashboard />} />
+          <Route path="/partner/clients" element={<PartnerDashboard />} />
+          <Route path="/partner/marketing" element={<PartnerDashboard />} />
           <Route path="*" element={<NotFound />} />
         </Routes>
       </BrowserRouter>
