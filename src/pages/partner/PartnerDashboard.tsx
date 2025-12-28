@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useCallback } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { motion } from 'framer-motion';
@@ -12,15 +12,25 @@ import WalletCard from '@/components/partner/WalletCard';
 import GenerateReportDialog from '@/components/partner/GenerateReportDialog';
 import PartnerReportHistory from '@/components/partner/PartnerReportHistory';
 import WalletTransactionHistory from '@/components/partner/WalletTransactionHistory';
-import { mockPartners, mockCreditReports, mockWalletTransactions } from '@/data/mockData';
+import { mockPartners, mockCreditReports, mockWalletTransactions, bureauConfig } from '@/data/mockData';
+import { CreditReport, Partner, WalletTransaction, Transaction } from '@/types';
 import { toast } from 'sonner';
+
+const PRICE_PER_BUREAU = 99;
 
 export default function PartnerDashboard() {
   const navigate = useNavigate();
   const location = useLocation();
   const [copied, setCopied] = useState(false);
   const [showGenerateDialog, setShowGenerateDialog] = useState(false);
-  const partner = mockPartners[0];
+  
+  // State management for partner data
+  const [partner, setPartner] = useState<Partner>(() => ({ ...mockPartners[0] }));
+  const [generatedReports, setGeneratedReports] = useState<CreditReport[]>([]);
+  const [walletTransactions, setWalletTransactions] = useState<WalletTransaction[]>(() => 
+    mockWalletTransactions.filter(t => t.partner_id === mockPartners[0].id)
+  );
+  const [transactions, setTransactions] = useState<Transaction[]>([]);
 
   const handleLogout = () => {
     sessionStorage.clear();
@@ -34,17 +44,165 @@ export default function PartnerDashboard() {
     setTimeout(() => setCopied(false), 2000);
   };
 
-  const handleLoadFunds = async (amount: number) => {
+  const handleLoadFunds = useCallback(async (amount: number) => {
+    const balanceBefore = partner.wallet_balance;
+    const balanceAfter = balanceBefore + amount;
+    
+    // Update partner wallet balance
+    setPartner(prev => ({
+      ...prev,
+      wallet_balance: balanceAfter,
+      total_wallet_loaded: prev.total_wallet_loaded + amount
+    }));
+    
+    // Add wallet transaction
+    const newTransaction: WalletTransaction = {
+      id: `wtxn_${Date.now()}`,
+      partner_id: partner.id,
+      partner_email: partner.owner_email,
+      transaction_type: 'credit',
+      amount,
+      balance_before: balanceBefore,
+      balance_after: balanceAfter,
+      description: 'Wallet top-up via payment gateway',
+      status: 'success',
+      created_date: new Date().toISOString()
+    };
+    
+    setWalletTransactions(prev => [newTransaction, ...prev]);
     toast.success(`₹${amount} added to wallet successfully!`);
-  };
+  }, [partner]);
 
-  const handleGenerateReport = async (clientData: any, bureaus: string[]) => {
+  const handleGenerateReport = useCallback(async (clientData: { full_name: string; pan_number: string; mobile: string; date_of_birth: string }, bureaus: string[]) => {
+    const totalAmount = bureaus.length * PRICE_PER_BUREAU;
+    
+    // Check wallet balance
+    if (partner.wallet_balance < totalAmount) {
+      throw new Error('Insufficient wallet balance');
+    }
+    
+    // Simulate API call delay
     await new Promise(resolve => setTimeout(resolve, 1500));
-    toast.success('Credit report generated successfully!');
-  };
+    
+    const balanceBefore = partner.wallet_balance;
+    const balanceAfter = balanceBefore - totalAmount;
+    
+    // Generate scores only for selected bureaus
+    const scores: Record<string, number> = {};
+    bureaus.forEach(bureauId => {
+      scores[bureauId] = 600 + Math.floor(Math.random() * 250);
+    });
+    
+    const avgScore = Math.round(Object.values(scores).reduce((a, b) => a + b, 0) / bureaus.length);
+    
+    // Create new report
+    const newReport: CreditReport = {
+      id: `report_${Date.now()}`,
+      user_email: `${clientData.pan_number.toLowerCase()}@client.com`,
+      full_name: clientData.full_name,
+      pan_number: clientData.pan_number,
+      mobile: clientData.mobile,
+      date_of_birth: clientData.date_of_birth,
+      gender: 'Not Specified',
+      address: 'Address on file',
+      report_status: 'UNLOCKED',
+      initiated_by: 'partner',
+      initiator_email: partner.owner_email,
+      partner_id: partner.id,
+      bureaus_checked: bureaus.map(b => bureauConfig[b]?.fullName || b),
+      cibil_score: scores.cibil,
+      experian_score: scores.experian,
+      equifax_score: scores.equifax,
+      crif_score: scores.crif,
+      average_score: avgScore,
+      score_category: avgScore >= 750 ? 'Excellent' : avgScore >= 700 ? 'Very Good' : avgScore >= 650 ? 'Good' : avgScore >= 550 ? 'Average' : 'Poor',
+      report_generated_at: new Date().toISOString(),
+      created_date: new Date().toISOString(),
+      credit_utilization: Math.floor(Math.random() * 60) + 10,
+      total_accounts: Math.floor(Math.random() * 5) + 1,
+      active_accounts: Math.floor(Math.random() * 3) + 1,
+      closed_accounts: Math.floor(Math.random() * 2),
+      hard_enquiries: Math.floor(Math.random() * 5) + 1,
+      soft_enquiries: Math.floor(Math.random() * 3),
+      active_loans: [],
+      closed_loans: [],
+      credit_cards: [],
+      enquiry_details: [],
+      oldest_account_age_months: Math.floor(Math.random() * 60) + 12,
+      credit_age_years: Math.floor(Math.random() * 5) + 1,
+      score_factors: {
+        payment_history: 70 + Math.floor(Math.random() * 30),
+        credit_utilization: 50 + Math.floor(Math.random() * 50),
+        credit_age: 40 + Math.floor(Math.random() * 60),
+        credit_mix: 60 + Math.floor(Math.random() * 40),
+        new_credit: 50 + Math.floor(Math.random() * 50),
+      },
+      improvement_tips: [
+        'Maintain low credit utilization below 30%',
+        'Pay all EMIs and bills on time',
+      ],
+      is_high_risk: avgScore < 600,
+      risk_flags: avgScore < 600 ? ['Low credit score'] : [],
+    };
+    
+    // Create transaction record
+    const newTransaction: Transaction = {
+      id: `txn_${Date.now()}`,
+      user_email: newReport.user_email,
+      transaction_id: `TXN${Date.now()}${Math.random().toString(36).substr(2, 6).toUpperCase()}`,
+      payment_gateway: 'wallet',
+      amount: totalAmount,
+      bureaus_purchased: bureaus,
+      report_count: bureaus.length,
+      status: 'success',
+      payment_method: 'Wallet',
+      initiated_by: 'partner',
+      initiator_email: partner.owner_email,
+      partner_id: partner.id,
+      created_date: new Date().toISOString(),
+      client_name: clientData.full_name,
+      client_pan: clientData.pan_number,
+      client_mobile: clientData.mobile,
+    };
+    
+    // Create wallet debit transaction
+    const walletDebit: WalletTransaction = {
+      id: `wtxn_${Date.now()}`,
+      partner_id: partner.id,
+      partner_email: partner.owner_email,
+      transaction_type: 'debit',
+      amount: totalAmount,
+      balance_before: balanceBefore,
+      balance_after: balanceAfter,
+      description: `Report generated for ${clientData.full_name} (${bureaus.length} bureau${bureaus.length > 1 ? 's' : ''})`,
+      reference_id: newTransaction.transaction_id,
+      status: 'success',
+      created_date: new Date().toISOString()
+    };
+    
+    // Update all state
+    setGeneratedReports(prev => [newReport, ...prev]);
+    setTransactions(prev => [newTransaction, ...prev]);
+    setWalletTransactions(prev => [walletDebit, ...prev]);
+    setPartner(prev => ({
+      ...prev,
+      wallet_balance: balanceAfter,
+      total_sales: prev.total_sales + 1,
+      total_revenue: prev.total_revenue + totalAmount,
+    }));
+    
+    // Store report in sessionStorage for admin panel access
+    const existingReports = JSON.parse(sessionStorage.getItem('generatedReports') || '[]');
+    sessionStorage.setItem('generatedReports', JSON.stringify([newReport, ...existingReports]));
+    
+    // Store transaction for admin panel
+    const existingTxns = JSON.parse(sessionStorage.getItem('allTransactions') || '[]');
+    sessionStorage.setItem('allTransactions', JSON.stringify([newTransaction, ...existingTxns]));
+    
+  }, [partner]);
 
-  const partnerReports = mockCreditReports.filter(r => r.partner_id === partner.id);
-  const partnerTransactions = mockWalletTransactions.filter(t => t.partner_id === partner.id);
+  // Combine mock reports with generated reports
+  const allPartnerReports = [...generatedReports, ...mockCreditReports.filter(r => r.partner_id === partner.id)];
 
   // Determine which content to show based on route
   const currentPath = location.pathname;
@@ -67,9 +225,12 @@ export default function PartnerDashboard() {
             </Button>
           </div>
           <PartnerReportHistory 
-            reports={partnerReports} 
-            transactions={partnerTransactions}
-            onViewReport={(report) => navigate(createPageUrl('CreditReport'))}
+            reports={allPartnerReports} 
+            transactions={transactions}
+            onViewReport={(report) => {
+              sessionStorage.setItem('viewReport', JSON.stringify(report));
+              navigate(createPageUrl('CreditReport'));
+            }}
           />
         </div>
       );
@@ -110,7 +271,7 @@ export default function PartnerDashboard() {
               <WalletCard partner={partner} onLoadFunds={handleLoadFunds} />
             </div>
             <div className="lg:col-span-2">
-              <WalletTransactionHistory transactions={partnerTransactions} />
+              <WalletTransactionHistory transactions={walletTransactions} />
             </div>
           </div>
         </div>
@@ -171,18 +332,21 @@ export default function PartnerDashboard() {
             <StatsCard title="Total Sales" value={partner.total_sales} icon={FileText} color="blue" delay={0.1} />
             <StatsCard title="Revenue Generated" value={`₹${partner.total_revenue.toLocaleString()}`} icon={TrendingUp} color="purple" delay={0.2} />
             <StatsCard title="Commission Earned" value={`₹${partner.total_commission_earned.toLocaleString()}`} icon={IndianRupee} color="amber" delay={0.3} />
-            <StatsCard title="Active Clients" value={partnerReports.length} icon={Users} color="teal" delay={0.4} />
+            <StatsCard title="Active Clients" value={allPartnerReports.length} icon={Users} color="teal" delay={0.4} />
           </div>
         </div>
 
         {/* Reports & Transactions */}
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
           <PartnerReportHistory 
-            reports={partnerReports.slice(0, 5)} 
-            transactions={partnerTransactions}
-            onViewReport={(report) => navigate(createPageUrl('CreditReport'))}
+            reports={allPartnerReports.slice(0, 5)} 
+            transactions={transactions}
+            onViewReport={(report) => {
+              sessionStorage.setItem('viewReport', JSON.stringify(report));
+              navigate(createPageUrl('CreditReport'));
+            }}
           />
-          <WalletTransactionHistory transactions={partnerTransactions} />
+          <WalletTransactionHistory transactions={walletTransactions} />
         </div>
       </>
     );

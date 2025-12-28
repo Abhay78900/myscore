@@ -118,12 +118,15 @@ export default function GenerateReportDialog({
   return (
     <>
       <Dialog open={isOpen && !showConfirm} onOpenChange={onClose}>
-        <DialogContent className="sm:max-w-lg">
+        <DialogContent className="sm:max-w-lg" aria-describedby="generate-report-description">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <FileText className="w-5 h-5 text-purple-600" />
               Generate Credit Report
             </DialogTitle>
+            <p id="generate-report-description" className="text-sm text-muted-foreground">
+              Enter client details and select bureaus to generate a credit report
+            </p>
           </DialogHeader>
 
           <div className="space-y-4 py-4">
@@ -263,9 +266,12 @@ export default function GenerateReportDialog({
 
       {/* Confirmation Dialog */}
       <Dialog open={showConfirm} onOpenChange={setShowConfirm}>
-        <DialogContent className="sm:max-w-md">
+        <DialogContent className="sm:max-w-md" aria-describedby="confirm-description">
           <DialogHeader>
             <DialogTitle>Confirm Report Generation</DialogTitle>
+            <p id="confirm-description" className="text-sm text-muted-foreground">
+              Please verify the details before proceeding
+            </p>
           </DialogHeader>
           
           <div className="py-4 space-y-4">
