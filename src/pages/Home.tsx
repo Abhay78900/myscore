@@ -98,6 +98,9 @@ export default function Home() {
             <Button variant="ghost" onClick={handleAdminLogin}>
               Admin
             </Button>
+            <Button variant="outline" onClick={() => navigate('/login')}>
+              Login
+            </Button>
             <Button onClick={handleGetStarted} className="gap-2">
               Check Score <ArrowRight className="w-4 h-4" />
             </Button>
@@ -129,6 +132,9 @@ export default function Home() {
             </Button>
             <Button variant="ghost" className="w-full justify-start" onClick={handleAdminLogin}>
               Admin
+            </Button>
+            <Button variant="outline" className="w-full" onClick={() => navigate('/login')}>
+              Login
             </Button>
             <Button className="w-full" onClick={handleGetStarted}>
               Check Score

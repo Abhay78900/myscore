@@ -1,13 +1,13 @@
 import React from 'react';
-import { useNavigate } from 'react-router-dom';
-import { createPageUrl } from '@/utils';
+import { useNavigate, useLocation } from 'react-router-dom';
 import {
   LayoutDashboard,
   FileText,
   Wallet,
   LogOut,
   CreditCard,
-  History,
+  Users,
+  Megaphone,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 import { Partner } from '@/types';
@@ -19,12 +19,16 @@ interface PartnerSidebarProps {
 }
 
 const menuItems = [
-  { name: 'Dashboard', icon: LayoutDashboard, page: 'PartnerDashboard' },
-  { name: 'My Reports', icon: FileText, page: 'PartnerReports' },
+  { name: 'Dashboard', icon: LayoutDashboard, path: '/partner/dashboard' },
+  { name: 'My Reports', icon: FileText, path: '/partner/reports' },
+  { name: 'My Clients', icon: Users, path: '/partner/clients' },
+  { name: 'Wallet', icon: Wallet, path: '/partner/wallet' },
+  { name: 'Marketing', icon: Megaphone, path: '/partner/marketing' },
 ];
 
 const PartnerSidebar: React.FC<PartnerSidebarProps> = ({ currentPage, onLogout, partner }) => {
   const navigate = useNavigate();
+  const location = useLocation();
 
   return (
     <aside className="w-64 bg-gradient-to-b from-purple-900 to-purple-800 text-white min-h-screen flex flex-col shrink-0">
@@ -59,12 +63,12 @@ const PartnerSidebar: React.FC<PartnerSidebarProps> = ({ currentPage, onLogout, 
       <nav className="flex-1 py-4 px-3 space-y-1 overflow-y-auto">
         {menuItems.map((item) => {
           const Icon = item.icon;
-          const isActive = currentPage === item.page;
+          const isActive = location.pathname === item.path;
           
           return (
             <button
-              key={item.page}
-              onClick={() => navigate(createPageUrl(item.page))}
+              key={item.path}
+              onClick={() => navigate(item.path)}
               className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all ${
                 isActive
                   ? 'bg-purple-500 text-white'

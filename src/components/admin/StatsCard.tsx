@@ -10,6 +10,8 @@ interface StatsCardProps {
   color: 'teal' | 'blue' | 'emerald' | 'purple' | 'amber' | 'red';
   delay?: number;
   subtitle?: string;
+  trend?: 'up' | 'down';
+  trendValue?: string;
 }
 
 const colorClasses = {
