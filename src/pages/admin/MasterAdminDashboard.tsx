@@ -26,8 +26,28 @@ export default function MasterAdminDashboard() {
     navigate(createPageUrl('Home'));
   };
 
-  const totalRevenue = mockTransactions.filter(t => t.status === 'success').reduce((sum, t) => sum + t.amount, 0);
-  const totalReports = mockCreditReports.length;
+  // Get generated reports from sessionStorage and combine with mock data
+  const getGeneratedReports = () => {
+    try {
+      return JSON.parse(sessionStorage.getItem('generatedReports') || '[]');
+    } catch {
+      return [];
+    }
+  };
+
+  const getAllTransactions = () => {
+    try {
+      return JSON.parse(sessionStorage.getItem('allTransactions') || '[]');
+    } catch {
+      return [];
+    }
+  };
+
+  const allReports = [...getGeneratedReports(), ...mockCreditReports];
+  const allTxns = [...getAllTransactions(), ...mockTransactions];
+  
+  const totalRevenue = allTxns.filter(t => t.status === 'success').reduce((sum, t) => sum + t.amount, 0);
+  const totalReports = allReports.length;
   const totalUsers = mockUsers.length;
   const activePartners = mockPartners.filter(p => p.status === 'active').length;
 
@@ -93,7 +113,7 @@ export default function MasterAdminDashboard() {
 
     // Users/User Role Management page
     if (currentPath.includes('/admin/users') || currentPath.includes('/admin/user-roles')) {
-      const filteredReports = mockCreditReports.filter(r => 
+      const filteredReports = allReports.filter(r => 
         r.full_name.toLowerCase().includes(searchQuery.toLowerCase()) ||
         r.pan_number.toLowerCase().includes(searchQuery.toLowerCase())
       );
@@ -214,10 +234,10 @@ export default function MasterAdminDashboard() {
                     </tr>
                   </thead>
                   <tbody className="divide-y">
-                    {mockTransactions.slice(0, 20).map((txn) => (
+                    {allTxns.slice(0, 20).map((txn) => (
                       <tr key={txn.id} className="hover:bg-muted/30">
                         <td className="px-4 py-3 text-sm font-mono">{txn.transaction_id.slice(0, 12)}...</td>
-                        <td className="px-4 py-3 text-sm">{txn.user_email}</td>
+                        <td className="px-4 py-3 text-sm">{txn.client_name || txn.user_email}</td>
                         <td className="px-4 py-3 text-sm font-semibold">₹{txn.amount}</td>
                         <td className="px-4 py-3 text-sm capitalize">{txn.initiated_by}</td>
                         <td className="px-4 py-3">
@@ -242,7 +262,8 @@ export default function MasterAdminDashboard() {
       return (
         <div className="space-y-6">
           <h1 className="text-2xl font-display font-bold text-foreground">Reports Repository</h1>
-          <UserTable reports={mockCreditReports} onViewReport={setSelectedReport} onDownload={() => {}} />
+          <p className="text-muted-foreground">All {allReports.length} generated reports from users and partners</p>
+          <UserTable reports={allReports} onViewReport={setSelectedReport} onDownload={() => {}} />
         </div>
       );
     }
@@ -343,11 +364,11 @@ export default function MasterAdminDashboard() {
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
-                  {mockCreditReports.slice(0, 5).map((report, i) => (
+                  {allReports.slice(0, 5).map((report, i) => (
                     <div key={report.id} className="flex items-center justify-between p-3 bg-muted/50 rounded-lg cursor-pointer hover:bg-muted" onClick={() => setSelectedReport(report)}>
                       <div>
                         <p className="font-medium text-foreground">{report.full_name}</p>
-                        <p className="text-sm text-muted-foreground">{report.pan_number}</p>
+                        <p className="text-sm text-muted-foreground">{report.pan_number} • {report.initiated_by === 'partner' ? 'Partner' : 'User'}</p>
                       </div>
                       <div className="text-right">
                         <p className="font-bold text-primary">{report.average_score}</p>
