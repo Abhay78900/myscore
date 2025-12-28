@@ -50,6 +50,8 @@ export default function PartnerDashboard() {
   const currentPath = location.pathname;
   const isReportsPage = currentPath.includes('/partner/reports');
   const isClientsPage = currentPath.includes('/partner/clients');
+  const isWalletPage = currentPath.includes('/partner/wallet');
+  const isMarketingPage = currentPath.includes('/partner/marketing');
 
   const renderContent = () => {
     if (isReportsPage) {
@@ -90,6 +92,43 @@ export default function PartnerDashboard() {
               <Users className="w-16 h-16 text-slate-300 mx-auto mb-4" />
               <h3 className="text-lg font-semibold text-slate-700 mb-2">Client Management Coming Soon</h3>
               <p className="text-muted-foreground">You can generate reports for clients using the button above.</p>
+            </CardContent>
+          </Card>
+        </div>
+      );
+    }
+
+    if (isWalletPage) {
+      return (
+        <div className="space-y-6">
+          <div>
+            <h1 className="text-2xl font-display font-bold text-foreground">Wallet Management</h1>
+            <p className="text-muted-foreground">Load funds and view transaction history</p>
+          </div>
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <div className="lg:col-span-1">
+              <WalletCard partner={partner} onLoadFunds={handleLoadFunds} />
+            </div>
+            <div className="lg:col-span-2">
+              <WalletTransactionHistory transactions={partnerTransactions} />
+            </div>
+          </div>
+        </div>
+      );
+    }
+
+    if (isMarketingPage) {
+      return (
+        <div className="space-y-6">
+          <div>
+            <h1 className="text-2xl font-display font-bold text-foreground">Marketing & Referrals</h1>
+            <p className="text-muted-foreground">Grow your business with referral codes</p>
+          </div>
+          <Card>
+            <CardContent className="p-8 text-center">
+              <FileText className="w-16 h-16 text-slate-300 mx-auto mb-4" />
+              <h3 className="text-lg font-semibold text-slate-700 mb-2">Marketing Tools Coming Soon</h3>
+              <p className="text-muted-foreground">Share your referral code: <strong>{partner.franchise_id}</strong></p>
             </CardContent>
           </Card>
         </div>
@@ -155,7 +194,7 @@ export default function PartnerDashboard() {
       
       <main className="flex-1 px-6 py-8 overflow-auto">
         <div className="max-w-7xl mx-auto">
-          {!isReportsPage && !isClientsPage && (
+          {!isReportsPage && !isClientsPage && !isWalletPage && !isMarketingPage && (
             <div className="mb-6">
               <h1 className="text-2xl font-display font-bold text-foreground">Partner Dashboard</h1>
               <p className="text-muted-foreground">Welcome back, {partner.name}</p>

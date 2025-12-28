@@ -51,6 +51,7 @@ export const mockPartners: Partner[] = [
   {
     id: 'partner_1',
     name: 'ABC Financial Services',
+    email: 'partner@example.com',
     owner_email: 'partner@example.com',
     franchise_id: 'ABC123',
     phone: '+91 98765 11111',
@@ -68,6 +69,7 @@ export const mockPartners: Partner[] = [
   {
     id: 'partner_2',
     name: 'XYZ Credit Advisors',
+    email: 'xyz@example.com',
     owner_email: 'xyz@example.com',
     franchise_id: 'XYZ456',
     phone: '+91 98765 22222',
@@ -85,6 +87,7 @@ export const mockPartners: Partner[] = [
   {
     id: 'partner_3',
     name: 'LMN Finance Hub',
+    email: 'lmn@example.com',
     owner_email: 'lmn@example.com',
     franchise_id: 'LMN789',
     phone: '+91 98765 33333',
@@ -245,17 +248,21 @@ export const mockWalletTransactions: WalletTransaction[] = Array.from({ length: 
 });
 
 // Mock Score Repair Requests
-export const mockScoreRepairRequests: ScoreRepairRequest[] = Array.from({ length: 15 }, (_, i) => ({
-  id: `repair_${i + 1}`,
-  user_email: `user${i + 1}@example.com`,
-  user_name: ['Rahul Sharma', 'Priya Patel', 'Amit Kumar'][i % 3],
-  user_mobile: `+91 98765 ${10000 + i}`,
-  current_score: 450 + Math.floor(Math.random() * 200),
-  report_id: `report_${i + 1}`,
-  status: ['pending', 'contacted', 'in_progress', 'completed', 'cancelled'][Math.floor(Math.random() * 5)] as ScoreRepairRequest['status'],
-  service_charge: 999,
-  created_date: randomDate(subDays(new Date(), 30), new Date()),
-}));
+export const mockScoreRepairRequests: ScoreRepairRequest[] = Array.from({ length: 15 }, (_, i) => {
+  const currentScore = 450 + Math.floor(Math.random() * 200);
+  return {
+    id: `repair_${i + 1}`,
+    user_email: `user${i + 1}@example.com`,
+    user_name: ['Rahul Sharma', 'Priya Patel', 'Amit Kumar'][i % 3],
+    user_mobile: `+91 98765 ${10000 + i}`,
+    current_score: currentScore,
+    target_score: Math.min(currentScore + 100 + Math.floor(Math.random() * 100), 900),
+    report_id: `report_${i + 1}`,
+    status: ['pending', 'contacted', 'in_progress', 'completed', 'cancelled'][Math.floor(Math.random() * 5)] as ScoreRepairRequest['status'],
+    service_charge: 999,
+    created_date: randomDate(subDays(new Date(), 30), new Date()),
+  };
+});
 
 // Current user simulation
 export const getCurrentUser = (): User => {

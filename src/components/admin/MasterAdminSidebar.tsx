@@ -1,6 +1,5 @@
 import React from 'react';
-import { NavLink, useNavigate } from 'react-router-dom';
-import { createPageUrl } from '@/utils';
+import { useNavigate, useLocation } from 'react-router-dom';
 import {
   LayoutDashboard,
   BarChart3,
@@ -14,6 +13,7 @@ import {
   UserCog,
   Wrench,
   FolderOpen,
+  Receipt,
 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
 
@@ -23,20 +23,21 @@ interface MasterAdminSidebarProps {
 }
 
 const menuItems = [
-  { name: 'Dashboard', icon: LayoutDashboard, page: 'MasterAdminDashboard' },
-  { name: 'Analytics', icon: BarChart3, page: 'AdminAnalytics' },
-  { name: 'Reports', icon: FileText, page: 'AdminReports' },
-  { name: 'Repository', icon: FolderOpen, page: 'AdminReportsRepository' },
-  { name: 'Users', icon: Users, page: 'AdminUsers' },
-  { name: 'User Roles', icon: UserCog, page: 'UserRoleManagement' },
-  { name: 'Partners', icon: Building2, page: 'ManagePartners' },
-  { name: 'Partner Wallets', icon: Wallet, page: 'PartnerWalletManagement' },
-  { name: 'Score Repair', icon: Wrench, page: 'ScoreRepairRequests' },
-  { name: 'Settings', icon: Settings, page: 'AdminSettings' },
+  { name: 'Dashboard', icon: LayoutDashboard, path: '/admin/dashboard' },
+  { name: 'Analytics', icon: BarChart3, path: '/admin/analytics' },
+  { name: 'Reports Repository', icon: FolderOpen, path: '/admin/reports-repository' },
+  { name: 'Users', icon: Users, path: '/admin/users' },
+  { name: 'User Roles', icon: UserCog, path: '/admin/user-roles' },
+  { name: 'Partners', icon: Building2, path: '/admin/partners' },
+  { name: 'Partner Wallets', icon: Wallet, path: '/admin/partner-wallets' },
+  { name: 'Transactions', icon: Receipt, path: '/admin/transactions' },
+  { name: 'Score Repair', icon: Wrench, path: '/admin/score-repair' },
+  { name: 'Settings', icon: Settings, path: '/admin/settings' },
 ];
 
 const MasterAdminSidebar: React.FC<MasterAdminSidebarProps> = ({ currentPage, onLogout }) => {
   const navigate = useNavigate();
+  const location = useLocation();
 
   return (
     <aside className="w-64 bg-sidebar text-sidebar-foreground min-h-screen flex flex-col shrink-0">
@@ -57,12 +58,12 @@ const MasterAdminSidebar: React.FC<MasterAdminSidebarProps> = ({ currentPage, on
       <nav className="flex-1 py-4 px-3 space-y-1 overflow-y-auto">
         {menuItems.map((item) => {
           const Icon = item.icon;
-          const isActive = currentPage === item.page;
+          const isActive = location.pathname === item.path;
           
           return (
             <button
-              key={item.page}
-              onClick={() => navigate(createPageUrl(item.page))}
+              key={item.path}
+              onClick={() => navigate(item.path)}
               className={`w-full flex items-center gap-3 px-4 py-3 rounded-lg text-sm font-medium transition-all ${
                 isActive
                   ? 'bg-sidebar-primary text-sidebar-primary-foreground'

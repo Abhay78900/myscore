@@ -109,6 +109,7 @@ export interface ScoreFactors {
 export interface Partner {
   id: string;
   name: string;
+  email: string;
   owner_email: string;
   franchise_id: string;
   phone?: string;
@@ -165,6 +166,7 @@ export interface ScoreRepairRequest {
   user_name: string;
   user_mobile: string;
   current_score: number;
+  target_score: number;
   report_id: string;
   status: 'pending' | 'contacted' | 'in_progress' | 'completed' | 'cancelled';
   service_charge: number;

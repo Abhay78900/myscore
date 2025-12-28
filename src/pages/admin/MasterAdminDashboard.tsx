@@ -3,7 +3,7 @@ import { useNavigate, useLocation } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { motion } from 'framer-motion';
 import { format } from 'date-fns';
-import { Users, FileText, TrendingUp, IndianRupee, Building2, Settings, Wrench, CreditCard, UserCog, Search } from 'lucide-react';
+import { Users, FileText, TrendingUp, IndianRupee, Building2, Settings, Wrench, CreditCard, UserCog, Search, Plus, Minus, Receipt } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
@@ -11,7 +11,7 @@ import MasterAdminSidebar from '@/components/admin/MasterAdminSidebar';
 import StatsCard from '@/components/admin/StatsCard';
 import UserTable from '@/components/admin/UserTable';
 import ReportDetailModal from '@/components/admin/ReportDetailModal';
-import { mockCreditReports, mockTransactions, mockPartners, mockUsers, mockScoreRepairRequests } from '@/data/mockData';
+import { mockCreditReports, mockTransactions, mockPartners, mockUsers, mockScoreRepairRequests, mockWalletTransactions } from '@/data/mockData';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar } from 'recharts';
 import { Badge } from '@/components/ui/badge';
 
@@ -150,7 +150,7 @@ export default function MasterAdminDashboard() {
       );
     }
 
-    // Partner Wallets page
+    // Partner Wallets page with admin controls
     if (currentPath.includes('/admin/partner-wallets')) {
       return (
         <div className="space-y-6">
@@ -165,7 +165,7 @@ export default function MasterAdminDashboard() {
                     </div>
                     <div>
                       <h3 className="font-semibold">{partner.name}</h3>
-                      <p className="text-sm text-muted-foreground">{partner.franchise_id}</p>
+                      <p className="text-sm text-muted-foreground">{partner.franchise_id} • {partner.email}</p>
                     </div>
                   </div>
                   <div className="flex items-center gap-6">
@@ -177,12 +177,62 @@ export default function MasterAdminDashboard() {
                       <p className="font-semibold">₹{partner.total_wallet_loaded.toLocaleString()}</p>
                       <p className="text-xs text-muted-foreground">Total Loaded</p>
                     </div>
-                    <Button variant="outline" size="sm">Add Funds</Button>
+                    <div className="flex gap-2">
+                      <Button variant="outline" size="sm" className="gap-1 text-emerald-600 border-emerald-200 hover:bg-emerald-50">
+                        <Plus className="w-3 h-3" /> Add
+                      </Button>
+                      <Button variant="outline" size="sm" className="gap-1 text-red-600 border-red-200 hover:bg-red-50">
+                        <Minus className="w-3 h-3" /> Deduct
+                      </Button>
+                    </div>
                   </div>
                 </CardContent>
               </Card>
             ))}
           </div>
+        </div>
+      );
+    }
+
+    // Transactions page
+    if (currentPath.includes('/admin/transactions')) {
+      return (
+        <div className="space-y-6">
+          <h1 className="text-2xl font-display font-bold text-foreground">All Transactions</h1>
+          <Card>
+            <CardContent className="p-0">
+              <div className="overflow-x-auto">
+                <table className="w-full">
+                  <thead className="bg-muted/50">
+                    <tr>
+                      <th className="px-4 py-3 text-left text-sm font-medium">Transaction ID</th>
+                      <th className="px-4 py-3 text-left text-sm font-medium">User</th>
+                      <th className="px-4 py-3 text-left text-sm font-medium">Amount</th>
+                      <th className="px-4 py-3 text-left text-sm font-medium">Type</th>
+                      <th className="px-4 py-3 text-left text-sm font-medium">Status</th>
+                      <th className="px-4 py-3 text-left text-sm font-medium">Date</th>
+                    </tr>
+                  </thead>
+                  <tbody className="divide-y">
+                    {mockTransactions.slice(0, 20).map((txn) => (
+                      <tr key={txn.id} className="hover:bg-muted/30">
+                        <td className="px-4 py-3 text-sm font-mono">{txn.transaction_id.slice(0, 12)}...</td>
+                        <td className="px-4 py-3 text-sm">{txn.user_email}</td>
+                        <td className="px-4 py-3 text-sm font-semibold">₹{txn.amount}</td>
+                        <td className="px-4 py-3 text-sm capitalize">{txn.initiated_by}</td>
+                        <td className="px-4 py-3">
+                          <Badge className={txn.status === 'success' ? 'bg-emerald-100 text-emerald-700' : txn.status === 'pending' ? 'bg-amber-100 text-amber-700' : 'bg-red-100 text-red-700'}>
+                            {txn.status}
+                          </Badge>
+                        </td>
+                        <td className="px-4 py-3 text-sm text-muted-foreground">{format(new Date(txn.created_date), 'dd MMM yyyy')}</td>
+                      </tr>
+                    ))}
+                  </tbody>
+                </table>
+              </div>
+            </CardContent>
+          </Card>
         </div>
       );
     }
