@@ -29,6 +29,12 @@ interface Report {
   created_date: string;
   transaction_id?: string;
   transaction?: Transaction;
+  report_status?: 'LOCKED' | 'UNLOCKED';
+  average_score?: number;
+  cibil_score?: number;
+  experian_score?: number;
+  equifax_score?: number;
+  crif_score?: number;
 }
 
 const statusConfig: Record<string, { icon: React.ComponentType<{ className?: string }>; color: string; label: string }> = {
