@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { motion } from 'framer-motion';
@@ -15,6 +15,7 @@ import WalletTransactionHistory from '@/components/partner/WalletTransactionHist
 import { mockPartners, mockCreditReports, mockWalletTransactions, bureauConfig } from '@/data/mockData';
 import { CreditReport, Partner, WalletTransaction, Transaction } from '@/types';
 import { toast } from 'sonner';
+import { saveReport, saveTransaction, getAllReports, getAllTransactions } from '@/utils/reportStorage';
 
 const PRICE_PER_BUREAU = 99;
 
@@ -95,7 +96,7 @@ export default function PartnerDashboard() {
     
     const avgScore = Math.round(Object.values(scores).reduce((a, b) => a + b, 0) / bureaus.length);
     
-    // Create new report
+    // Create new report - ALWAYS UNLOCKED when generated through partner
     const newReport: CreditReport = {
       id: `report_${Date.now()}`,
       user_email: `${clientData.pan_number.toLowerCase()}@client.com`,
@@ -105,7 +106,7 @@ export default function PartnerDashboard() {
       date_of_birth: clientData.date_of_birth,
       gender: 'Not Specified',
       address: 'Address on file',
-      report_status: 'UNLOCKED',
+      report_status: 'UNLOCKED', // CRITICAL: Always unlocked when paid
       initiated_by: 'partner',
       initiator_email: partner.owner_email,
       partner_id: partner.id,
@@ -191,13 +192,9 @@ export default function PartnerDashboard() {
       total_revenue: prev.total_revenue + totalAmount,
     }));
     
-    // Store report in sessionStorage for admin panel access
-    const existingReports = JSON.parse(sessionStorage.getItem('generatedReports') || '[]');
-    sessionStorage.setItem('generatedReports', JSON.stringify([newReport, ...existingReports]));
-    
-    // Store transaction for admin panel
-    const existingTxns = JSON.parse(sessionStorage.getItem('allTransactions') || '[]');
-    sessionStorage.setItem('allTransactions', JSON.stringify([newTransaction, ...existingTxns]));
+    // CRITICAL: Save to centralized storage for persistence across panels
+    saveReport(newReport);
+    saveTransaction(newTransaction);
     
   }, [partner]);
 
@@ -228,8 +225,13 @@ export default function PartnerDashboard() {
             reports={allPartnerReports} 
             transactions={transactions}
             onViewReport={(report) => {
-              sessionStorage.setItem('viewReport', JSON.stringify(report));
-              navigate(createPageUrl('CreditReport'));
+              // Only allow viewing unlocked reports
+              if (report.report_status === 'UNLOCKED') {
+                sessionStorage.setItem('viewReport', JSON.stringify(report));
+                navigate(`/credit-report?reportId=${report.id}&viewer=partner`);
+              } else {
+                toast.error('This report is locked. Please complete payment first.');
+              }
             }}
           />
         </div>
@@ -342,8 +344,12 @@ export default function PartnerDashboard() {
             reports={allPartnerReports.slice(0, 5)} 
             transactions={transactions}
             onViewReport={(report) => {
-              sessionStorage.setItem('viewReport', JSON.stringify(report));
-              navigate(createPageUrl('CreditReport'));
+              if (report.report_status === 'UNLOCKED') {
+                sessionStorage.setItem('viewReport', JSON.stringify(report));
+                navigate(`/credit-report?reportId=${report.id}&viewer=partner`);
+              } else {
+                toast.error('This report is locked. Please complete payment first.');
+              }
             }}
           />
           <WalletTransactionHistory transactions={walletTransactions} />

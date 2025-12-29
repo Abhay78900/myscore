@@ -14,6 +14,8 @@ import ReportDetailModal from '@/components/admin/ReportDetailModal';
 import { mockCreditReports, mockTransactions, mockPartners, mockUsers, mockScoreRepairRequests, mockWalletTransactions } from '@/data/mockData';
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar } from 'recharts';
 import { Badge } from '@/components/ui/badge';
+import { getAllReports, getAllTransactions } from '@/utils/reportStorage';
+import { CreditReport } from '@/types';
 
 export default function MasterAdminDashboard() {
   const navigate = useNavigate();
@@ -26,25 +28,24 @@ export default function MasterAdminDashboard() {
     navigate(createPageUrl('Home'));
   };
 
-  // Get generated reports from sessionStorage and combine with mock data
-  const getGeneratedReports = () => {
-    try {
-      return JSON.parse(sessionStorage.getItem('generatedReports') || '[]');
-    } catch {
-      return [];
-    }
+  // Get generated reports from centralized storage and combine with mock data
+  const getStoredReports = (): CreditReport[] => {
+    const storedReports = getAllReports();
+    // Combine with mock data, avoiding duplicates by ID
+    const mockIds = storedReports.map(r => r.id);
+    const uniqueMock = mockCreditReports.filter(r => !mockIds.includes(r.id));
+    return [...storedReports, ...uniqueMock];
   };
 
-  const getAllTransactions = () => {
-    try {
-      return JSON.parse(sessionStorage.getItem('allTransactions') || '[]');
-    } catch {
-      return [];
-    }
+  const getStoredTransactions = () => {
+    const storedTxns = getAllTransactions();
+    const storedIds = storedTxns.map(t => t.id);
+    const uniqueMock = mockTransactions.filter(t => !storedIds.includes(t.id));
+    return [...storedTxns, ...uniqueMock];
   };
 
-  const allReports = [...getGeneratedReports(), ...mockCreditReports];
-  const allTxns = [...getAllTransactions(), ...mockTransactions];
+  const allReports = getStoredReports();
+  const allTxns = getStoredTransactions();
   
   const totalRevenue = allTxns.filter(t => t.status === 'success').reduce((sum, t) => sum + t.amount, 0);
   const totalReports = allReports.length;
@@ -259,11 +260,21 @@ export default function MasterAdminDashboard() {
 
     // Reports Repository page
     if (currentPath.includes('/admin/reports-repository')) {
+      const handleViewReport = (report: CreditReport) => {
+        // Open in unified viewer with admin context
+        sessionStorage.setItem('viewReport', JSON.stringify(report));
+        navigate(`/credit-report?reportId=${report.id}&viewer=admin`);
+      };
+      
       return (
         <div className="space-y-6">
           <h1 className="text-2xl font-display font-bold text-foreground">Reports Repository</h1>
           <p className="text-muted-foreground">All {allReports.length} generated reports from users and partners</p>
-          <UserTable reports={allReports} onViewReport={setSelectedReport} onDownload={() => {}} />
+          <UserTable 
+            reports={allReports} 
+            onViewReport={handleViewReport} 
+            onDownload={() => {}} 
+          />
         </div>
       );
     }
@@ -365,7 +376,14 @@ export default function MasterAdminDashboard() {
               <CardContent>
                 <div className="space-y-3">
                   {allReports.slice(0, 5).map((report, i) => (
-                    <div key={report.id} className="flex items-center justify-between p-3 bg-muted/50 rounded-lg cursor-pointer hover:bg-muted" onClick={() => setSelectedReport(report)}>
+                    <div 
+                      key={report.id} 
+                      className="flex items-center justify-between p-3 bg-muted/50 rounded-lg cursor-pointer hover:bg-muted" 
+                      onClick={() => {
+                        sessionStorage.setItem('viewReport', JSON.stringify(report));
+                        navigate(`/credit-report?reportId=${report.id}&viewer=admin`);
+                      }}
+                    >
                       <div>
                         <p className="font-medium text-foreground">{report.full_name}</p>
                         <p className="text-sm text-muted-foreground">{report.pan_number} • {report.initiated_by === 'partner' ? 'Partner' : 'User'}</p>

@@ -32,10 +32,22 @@ interface Report {
   pan_number?: string;
   mobile?: string;
   credit_score?: number;
+  average_score?: number;
+  cibil_score?: number;
+  experian_score?: number;
+  equifax_score?: number;
+  crif_score?: number;
   view_count?: number;
   last_viewed_at?: string;
   created_date: string;
   is_high_risk?: boolean;
+  report_status?: 'LOCKED' | 'UNLOCKED';
+  initiated_by?: 'user' | 'partner';
+  partner_id?: string;
+  bureaus_checked?: string[];
+  score_category?: string;
+  report_generated_at?: string;
+  initiator_email?: string;
 }
 
 const getScoreBadge = (score: number) => {
@@ -47,7 +59,7 @@ const getScoreBadge = (score: number) => {
 
 interface UserTableProps {
   reports: Report[];
-  onViewReport?: (report: Report) => void;
+  onViewReport?: (report: any) => void;
   onDownload?: (report: Report) => void;
 }
 
@@ -78,7 +90,8 @@ export default function UserTable({ reports, onViewReport, onDownload }: UserTab
         </TableHeader>
         <TableBody>
           {reports.map((report, index) => {
-            const scoreBadge = getScoreBadge(report.credit_score || 0);
+            const displayScore = report.average_score || report.credit_score || report.cibil_score || 0;
+            const scoreBadge = getScoreBadge(displayScore);
             
             return (
               <motion.tr
@@ -103,7 +116,7 @@ export default function UserTable({ reports, onViewReport, onDownload }: UserTab
                 <TableCell>{report.mobile}</TableCell>
                 <TableCell>
                   <div className="flex items-center gap-2">
-                    <span className="font-bold text-slate-800">{report.credit_score}</span>
+                    <span className="font-bold text-slate-800">{displayScore}</span>
                     <Badge className={scoreBadge.color}>{scoreBadge.label}</Badge>
                   </div>
                 </TableCell>
