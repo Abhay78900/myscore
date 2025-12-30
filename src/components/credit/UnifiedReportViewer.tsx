@@ -25,6 +25,16 @@ interface UnifiedReportViewerProps {
 
 export default function UnifiedReportViewer({ report, viewerType, onBack }: UnifiedReportViewerProps) {
   const navigate = useNavigate();
+
+  const getScoreForBureau = (bureau: string): number => {
+    switch (bureau) {
+      case 'cibil': return report?.cibil_score || 0;
+      case 'experian': return report?.experian_score || 0;
+      case 'equifax': return report?.equifax_score || 0;
+      case 'crif': return report?.crif_score || 0;
+      default: return 0;
+    }
+  };
   
   // Determine first available bureau
   const getFirstAvailableBureau = (): string => {
@@ -37,16 +47,6 @@ export default function UnifiedReportViewer({ report, viewerType, onBack }: Unif
   };
   
   const [selectedBureau, setSelectedBureau] = React.useState(getFirstAvailableBureau);
-
-  const getScoreForBureau = (bureau: string): number => {
-    switch (bureau) {
-      case 'cibil': return report?.cibil_score || 0;
-      case 'experian': return report?.experian_score || 0;
-      case 'equifax': return report?.equifax_score || 0;
-      case 'crif': return report?.crif_score || 0;
-      default: return 0;
-    }
-  };
 
   const handleDownload = (bureau: string) => {
     const content = `Credit Report - ${report.full_name}\nBureau: ${bureauConfig[bureau]?.fullName || bureau}\nScore: ${getScoreForBureau(bureau)}\nGenerated: ${new Date().toDateString()}`;
