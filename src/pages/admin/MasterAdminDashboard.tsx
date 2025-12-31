@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import { useNavigate, useLocation } from 'react-router-dom';
 import { createPageUrl } from '@/utils';
 import { motion } from 'framer-motion';
@@ -18,7 +18,8 @@ import { mockCreditReports, mockTransactions, mockPartners as initialMockPartner
 import { LineChart, Line, XAxis, YAxis, CartesianGrid, Tooltip, ResponsiveContainer, BarChart, Bar } from 'recharts';
 import { Badge } from '@/components/ui/badge';
 import { getAllReports, getAllTransactions } from '@/utils/reportStorage';
-import { CreditReport, Partner, ScoreRepairRequest, WalletTransaction } from '@/types';
+import { getAllPartners, savePartner, deletePartner as deletePartnerFromStorage, initializeWithMockData, getAllUsers } from '@/utils/userStorage';
+import { CreditReport, Partner, ScoreRepairRequest, WalletTransaction, User } from '@/types';
 import { toast } from 'sonner';
 import {
   AlertDialog,
@@ -37,8 +38,16 @@ export default function MasterAdminDashboard() {
   const [selectedReport, setSelectedReport] = useState<any>(null);
   const [searchQuery, setSearchQuery] = useState('');
   
-  // Partner management state
-  const [partners, setPartners] = useState<Partner[]>(initialMockPartners);
+  // Initialize storage with mock data on first load
+  useEffect(() => {
+    initializeWithMockData(mockUsers, initialMockPartners);
+  }, []);
+  
+  // Partner management state - load from storage
+  const [partners, setPartners] = useState<Partner[]>(() => {
+    const stored = getAllPartners();
+    return stored.length > 0 ? stored : initialMockPartners;
+  });
   const [selectedPartner, setSelectedPartner] = useState<Partner | null>(null);
   const [walletDialogOpen, setWalletDialogOpen] = useState(false);
   const [walletDialogType, setWalletDialogType] = useState<'add' | 'deduct'>('add');
@@ -54,6 +63,32 @@ export default function MasterAdminDashboard() {
   
   // Wallet transactions state
   const [walletTransactions, setWalletTransactions] = useState<WalletTransaction[]>(mockWalletTransactions);
+  
+  // Users list - combine stored and mock
+  const [usersList, setUsersList] = useState<User[]>(() => {
+    const stored = getAllUsers();
+    const mockIds = stored.map(u => u.id);
+    const uniqueMock = mockUsers.filter(u => !mockIds.includes(u.id));
+    return [...stored, ...uniqueMock];
+  });
+  
+  // Refresh partners from storage periodically
+  useEffect(() => {
+    const refreshData = () => {
+      const storedPartners = getAllPartners();
+      if (storedPartners.length > 0) {
+        setPartners(storedPartners);
+      }
+      const storedUsers = getAllUsers();
+      const mockIds = storedUsers.map(u => u.id);
+      const uniqueMock = mockUsers.filter(u => !mockIds.includes(u.id));
+      setUsersList([...storedUsers, ...uniqueMock]);
+    };
+    
+    refreshData();
+    const interval = setInterval(refreshData, 2000);
+    return () => clearInterval(interval);
+  }, []);
 
   const handleLogout = () => {
     sessionStorage.clear();
@@ -80,7 +115,7 @@ export default function MasterAdminDashboard() {
   
   const totalRevenue = allTxns.filter(t => t.status === 'success').reduce((sum, t) => sum + t.amount, 0);
   const totalReports = allReports.length;
-  const totalUsers = mockUsers.length;
+  const totalUsers = usersList.length;
   const activePartners = partners.filter(p => p.status === 'active').length;
 
   // Generate chart data
@@ -125,14 +160,22 @@ export default function MasterAdminDashboard() {
 
   // Partner CRUD handlers
   const handleCreateOrUpdatePartner = useCallback((data: Partial<Partner> & { password?: string }) => {
+    const partnerData = data as Partner;
+    const password = data.password;
+    
     if (editingPartner) {
+      // Update existing partner
+      const updatedPartner = { ...editingPartner, ...partnerData };
+      savePartner(updatedPartner);
       setPartners(prev => prev.map(p => 
-        p.id === editingPartner.id ? { ...p, ...data } : p
+        p.id === editingPartner.id ? updatedPartner : p
       ));
       toast.success('Partner updated successfully');
     } else {
-      setPartners(prev => [...prev, data as Partner]);
-      toast.success('Partner created successfully');
+      // Create new partner with credentials
+      savePartner(partnerData, password);
+      setPartners(prev => [...prev, partnerData]);
+      toast.success(`Partner created successfully! Login: ${partnerData.email} / ${password}`);
     }
     setEditingPartner(null);
   }, [editingPartner]);
@@ -150,6 +193,7 @@ export default function MasterAdminDashboard() {
 
   const handleDeletePartner = useCallback(() => {
     if (partnerToDelete) {
+      deletePartnerFromStorage(partnerToDelete.id);
       setPartners(prev => prev.filter(p => p.id !== partnerToDelete.id));
       toast.success('Partner deleted successfully');
       setPartnerToDelete(null);
