@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
 import { useNavigate, Link } from 'react-router-dom';
-import { createPageUrl } from '@/utils';
 import { motion } from 'framer-motion';
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -9,13 +8,13 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription } from "@/com
 import { CreditCard, Mail, Lock, ArrowLeft, Eye, EyeOff, User, Building2, Shield } from 'lucide-react';
 import { setCurrentUserRole } from '@/data/mockData';
 import { toast } from 'sonner';
-
-// Mock credentials for demo
-const MOCK_USERS = {
-  'user@demo.com': { password: 'user123', role: 'USER' as const, name: 'John Doe' },
-  'partner@demo.com': { password: 'partner123', role: 'PARTNER_ADMIN' as const, name: 'Partner Admin' },
-  'admin@demo.com': { password: 'admin123', role: 'MASTER_ADMIN' as const, name: 'Master Admin' },
-};
+import { 
+  validateUserLogin, 
+  saveUserCredential, 
+  saveUser, 
+  getAllUserCredentials,
+  getPartnerByEmail 
+} from '@/utils/userStorage';
 
 export default function Login() {
   const navigate = useNavigate();
@@ -30,14 +29,25 @@ export default function Login() {
     e.preventDefault();
     setIsLoading(true);
 
-    await new Promise(resolve => setTimeout(resolve, 1000));
+    await new Promise(resolve => setTimeout(resolve, 500));
 
-    const user = MOCK_USERS[email.toLowerCase() as keyof typeof MOCK_USERS];
+    // Validate against stored credentials
+    const user = validateUserLogin(email, password);
     
-    if (user && user.password === password) {
+    if (user) {
       setCurrentUserRole(user.role);
-      sessionStorage.setItem('userEmail', email);
+      sessionStorage.setItem('userEmail', user.email);
       sessionStorage.setItem('userName', user.name);
+      sessionStorage.setItem('userId', user.userId);
+      
+      // For partner login, also store partner info
+      if (user.role === 'PARTNER_ADMIN') {
+        const partner = getPartnerByEmail(user.email);
+        if (partner) {
+          sessionStorage.setItem('partnerId', partner.id);
+          sessionStorage.setItem('partnerName', partner.name);
+        }
+      }
       
       toast.success(`Welcome back, ${user.name}!`);
       
@@ -63,12 +73,41 @@ export default function Login() {
     e.preventDefault();
     setIsLoading(true);
 
-    await new Promise(resolve => setTimeout(resolve, 1000));
+    await new Promise(resolve => setTimeout(resolve, 500));
     
-    // Mock signup - in real app, this would create a user
+    // Check if email already exists
+    const existingCredentials = getAllUserCredentials();
+    if (existingCredentials.find(c => c.email.toLowerCase() === email.toLowerCase())) {
+      toast.error('An account with this email already exists');
+      setIsLoading(false);
+      return;
+    }
+    
+    const userId = `user_${Date.now()}`;
+    
+    // Save user credential
+    saveUserCredential({
+      email: email,
+      password: password,
+      role: 'USER',
+      name: fullName,
+      userId: userId,
+    });
+    
+    // Save user profile
+    saveUser({
+      id: userId,
+      email: email,
+      full_name: fullName,
+      user_role: 'USER',
+      created_date: new Date().toISOString(),
+    });
+    
+    // Set session
     setCurrentUserRole('USER');
     sessionStorage.setItem('userEmail', email);
     sessionStorage.setItem('userName', fullName);
+    sessionStorage.setItem('userId', userId);
     
     toast.success('Account created successfully!');
     navigate('/dashboard');

@@ -16,6 +16,7 @@ import { mockPartners, mockCreditReports, mockWalletTransactions, bureauConfig }
 import { CreditReport, Partner, WalletTransaction, Transaction } from '@/types';
 import { toast } from 'sonner';
 import { saveReport, saveTransaction, getAllReports, getAllTransactions } from '@/utils/reportStorage';
+import { getPartnerByEmail, getAllPartners } from '@/utils/userStorage';
 
 const PRICE_PER_BUREAU = 99;
 
@@ -25,11 +26,33 @@ export default function PartnerDashboard() {
   const [copied, setCopied] = useState(false);
   const [showGenerateDialog, setShowGenerateDialog] = useState(false);
   
+  // Get partner from storage based on logged-in user
+  const getLoggedInPartner = (): Partner => {
+    const userEmail = sessionStorage.getItem('userEmail');
+    const partnerId = sessionStorage.getItem('partnerId');
+    
+    // Try to find partner by email or ID
+    if (userEmail) {
+      const storedPartner = getPartnerByEmail(userEmail);
+      if (storedPartner) return storedPartner;
+    }
+    
+    // Check all partners from storage
+    const allPartners = getAllPartners();
+    if (partnerId) {
+      const found = allPartners.find(p => p.id === partnerId);
+      if (found) return found;
+    }
+    
+    // Fallback to mock
+    return mockPartners[0];
+  };
+  
   // State management for partner data
-  const [partner, setPartner] = useState<Partner>(() => ({ ...mockPartners[0] }));
+  const [partner, setPartner] = useState<Partner>(getLoggedInPartner);
   const [generatedReports, setGeneratedReports] = useState<CreditReport[]>([]);
   const [walletTransactions, setWalletTransactions] = useState<WalletTransaction[]>(() => 
-    mockWalletTransactions.filter(t => t.partner_id === mockPartners[0].id)
+    mockWalletTransactions.filter(t => t.partner_id === getLoggedInPartner().id)
   );
   const [transactions, setTransactions] = useState<Transaction[]>([]);
 
