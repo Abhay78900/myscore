@@ -85,44 +85,44 @@ export default function WalletCard({ partner, onLoadFunds, isLoading }: WalletCa
         animate={{ opacity: 1, y: 0 }}
       >
         <Card className="bg-gradient-to-br from-emerald-600 to-teal-700 text-white border-0 overflow-hidden relative">
-          <div className="absolute top-0 right-0 w-40 h-40 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/2" />
-          <div className="absolute bottom-0 left-0 w-32 h-32 bg-white/5 rounded-full translate-y-1/2 -translate-x-1/2" />
+          <div className="absolute top-0 right-0 w-32 md:w-40 h-32 md:h-40 bg-white/10 rounded-full -translate-y-1/2 translate-x-1/2" />
+          <div className="absolute bottom-0 left-0 w-24 md:w-32 h-24 md:h-32 bg-white/5 rounded-full translate-y-1/2 -translate-x-1/2" />
           
-          <CardContent className="p-6 relative z-10">
-            <div className="flex items-start justify-between mb-6">
+          <CardContent className="p-4 md:p-6 relative z-10">
+            <div className="flex flex-col sm:flex-row sm:items-start justify-between gap-4 mb-4 md:mb-6">
               <div>
                 <div className="flex items-center gap-2 mb-1">
-                  <Wallet className="w-5 h-5 text-emerald-200" />
-                  <span className="text-emerald-200 text-sm font-medium">Partner Wallet</span>
+                  <Wallet className="w-4 h-4 md:w-5 md:h-5 text-emerald-200" />
+                  <span className="text-emerald-200 text-xs md:text-sm font-medium">Partner Wallet</span>
                 </div>
                 <div className="flex items-baseline gap-1">
-                  <span className="text-4xl font-bold">₹{walletBalance.toLocaleString()}</span>
+                  <span className="text-2xl md:text-4xl font-bold">₹{walletBalance.toLocaleString()}</span>
                 </div>
-                <p className="text-emerald-200 text-sm mt-1">Available Balance</p>
+                <p className="text-emerald-200 text-xs md:text-sm mt-1">Available Balance</p>
               </div>
               <Button
                 onClick={() => setShowLoadDialog(true)}
-                className="bg-white text-emerald-700 hover:bg-emerald-50 gap-2"
+                className="bg-white text-emerald-700 hover:bg-emerald-50 gap-2 w-full sm:w-auto"
               >
                 <Plus className="w-4 h-4" />
                 Load Funds
               </Button>
             </div>
 
-            <div className="grid grid-cols-2 gap-4 pt-4 border-t border-white/20">
+            <div className="grid grid-cols-2 gap-3 md:gap-4 pt-3 md:pt-4 border-t border-white/20">
               <div>
-                <div className="flex items-center gap-2 text-emerald-200 text-sm mb-1">
-                  <ArrowDownLeft className="w-4 h-4" />
-                  Total Loaded
+                <div className="flex items-center gap-1 md:gap-2 text-emerald-200 text-xs md:text-sm mb-1">
+                  <ArrowDownLeft className="w-3 h-3 md:w-4 md:h-4" />
+                  <span className="truncate">Total Loaded</span>
                 </div>
-                <p className="text-xl font-semibold">₹{totalLoaded.toLocaleString()}</p>
+                <p className="text-lg md:text-xl font-semibold">₹{totalLoaded.toLocaleString()}</p>
               </div>
               <div>
-                <div className="flex items-center gap-2 text-emerald-200 text-sm mb-1">
-                  <ArrowUpRight className="w-4 h-4" />
-                  Total Spent
+                <div className="flex items-center gap-1 md:gap-2 text-emerald-200 text-xs md:text-sm mb-1">
+                  <ArrowUpRight className="w-3 h-3 md:w-4 md:h-4" />
+                  <span className="truncate">Total Spent</span>
                 </div>
-                <p className="text-xl font-semibold">₹{(totalLoaded - walletBalance).toLocaleString()}</p>
+                <p className="text-lg md:text-xl font-semibold">₹{(totalLoaded - walletBalance).toLocaleString()}</p>
               </div>
             </div>
           </CardContent>
