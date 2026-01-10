@@ -216,24 +216,24 @@ export default function MasterAdminDashboard() {
     // Analytics page
     if (currentPath.includes('/admin/analytics')) {
       return (
-        <div className="space-y-6">
-          <h1 className="text-2xl font-display font-bold text-foreground">Analytics Dashboard</h1>
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
+        <div className="space-y-4 md:space-y-6">
+          <h1 className="text-xl md:text-2xl font-display font-bold text-foreground">Analytics Dashboard</h1>
+          <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-6">
             <StatsCard title="Total Revenue" value={`₹${totalRevenue.toLocaleString()}`} icon={IndianRupee} color="emerald" trend="up" trendValue="+12%" delay={0} />
             <StatsCard title="Total Reports" value={totalReports} icon={FileText} color="blue" trend="up" trendValue="+8%" delay={0.1} />
             <StatsCard title="Active Users" value={totalUsers} icon={Users} color="purple" trend="up" trendValue="+5%" delay={0.2} />
             <StatsCard title="Conversion Rate" value="24.5%" icon={TrendingUp} color="teal" trend="up" trendValue="+2%" delay={0.3} />
           </div>
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
             <Card>
-              <CardHeader><CardTitle>Revenue Trend</CardTitle></CardHeader>
+              <CardHeader><CardTitle className="text-base md:text-lg">Revenue Trend</CardTitle></CardHeader>
               <CardContent>
-                <div className="h-64">
+                <div className="h-48 md:h-64">
                   <ResponsiveContainer width="100%" height="100%">
                     <LineChart data={chartData}>
                       <CartesianGrid strokeDasharray="3 3" />
-                      <XAxis dataKey="date" />
-                      <YAxis />
+                      <XAxis dataKey="date" tick={{ fontSize: 10 }} />
+                      <YAxis tick={{ fontSize: 10 }} />
                       <Tooltip />
                       <Line type="monotone" dataKey="revenue" stroke="hsl(var(--primary))" strokeWidth={2} />
                     </LineChart>
@@ -242,14 +242,14 @@ export default function MasterAdminDashboard() {
               </CardContent>
             </Card>
             <Card>
-              <CardHeader><CardTitle>Reports Generated</CardTitle></CardHeader>
+              <CardHeader><CardTitle className="text-base md:text-lg">Reports Generated</CardTitle></CardHeader>
               <CardContent>
-                <div className="h-64">
+                <div className="h-48 md:h-64">
                   <ResponsiveContainer width="100%" height="100%">
                     <BarChart data={chartData}>
                       <CartesianGrid strokeDasharray="3 3" />
-                      <XAxis dataKey="date" />
-                      <YAxis />
+                      <XAxis dataKey="date" tick={{ fontSize: 10 }} />
+                      <YAxis tick={{ fontSize: 10 }} />
                       <Tooltip />
                       <Bar dataKey="reports" fill="hsl(var(--primary))" />
                     </BarChart>
@@ -269,16 +269,14 @@ export default function MasterAdminDashboard() {
         r.pan_number.toLowerCase().includes(searchQuery.toLowerCase())
       );
       return (
-        <div className="space-y-6">
-          <div className="flex items-center justify-between">
-            <h1 className="text-2xl font-display font-bold text-foreground">
+        <div className="space-y-4 md:space-y-6">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <h1 className="text-xl md:text-2xl font-display font-bold text-foreground">
               {currentPath.includes('/admin/user-roles') ? 'User Role Management' : 'All Users'}
             </h1>
-            <div className="flex items-center gap-3">
-              <div className="relative">
-                <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                <Input placeholder="Search users..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="pl-9 w-64" />
-              </div>
+            <div className="relative">
+              <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
+              <Input placeholder="Search users..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="pl-9 w-full sm:w-64" />
             </div>
           </div>
           <UserTable reports={filteredReports} onViewReport={setSelectedReport} onDownload={() => {}} />
@@ -295,13 +293,13 @@ export default function MasterAdminDashboard() {
       );
       
       return (
-        <div className="space-y-6">
-          <div className="flex items-center justify-between">
-            <h1 className="text-2xl font-display font-bold text-foreground">Partners & Franchises</h1>
-            <div className="flex items-center gap-3">
+        <div className="space-y-4 md:space-y-6">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
+            <h1 className="text-xl md:text-2xl font-display font-bold text-foreground">Partners & Franchises</h1>
+            <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-3">
               <div className="relative">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-                <Input placeholder="Search partners..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="pl-9 w-64" />
+                <Input placeholder="Search partners..." value={searchQuery} onChange={(e) => setSearchQuery(e.target.value)} className="pl-9 w-full sm:w-64" />
               </div>
               <Button onClick={() => { setEditingPartner(null); setPartnerFormOpen(true); }} className="gap-2">
                 <Plus className="w-4 h-4" /> Add Partner
@@ -313,23 +311,23 @@ export default function MasterAdminDashboard() {
             {filteredPartners.map((partner) => (
               <Card key={partner.id}>
                 <CardContent className="p-4">
-                  <div className="flex items-center justify-between">
+                  <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
                     <div className="flex items-center gap-4">
-                      <div className="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center">
+                      <div className="w-12 h-12 bg-purple-100 rounded-full flex items-center justify-center shrink-0">
                         <Building2 className="w-6 h-6 text-purple-600" />
                       </div>
-                      <div>
-                        <h3 className="font-semibold">{partner.name}</h3>
-                        <p className="text-sm text-muted-foreground">{partner.franchise_id} • {partner.email}</p>
-                        <p className="text-xs text-muted-foreground">{partner.phone} • {partner.address}</p>
+                      <div className="min-w-0">
+                        <h3 className="font-semibold truncate">{partner.name}</h3>
+                        <p className="text-sm text-muted-foreground truncate">{partner.franchise_id} • {partner.email}</p>
+                        <p className="text-xs text-muted-foreground truncate">{partner.phone} • {partner.address}</p>
                       </div>
                     </div>
-                    <div className="flex items-center gap-6">
-                      <div className="text-right">
+                    <div className="flex flex-wrap items-center gap-3 lg:gap-6">
+                      <div className="text-left lg:text-right">
                         <p className="font-semibold">₹{partner.wallet_balance.toLocaleString()}</p>
                         <p className="text-xs text-muted-foreground">Wallet Balance</p>
                       </div>
-                      <div className="text-right">
+                      <div className="text-left lg:text-right">
                         <p className="font-semibold">{partner.commission_rate}%</p>
                         <p className="text-xs text-muted-foreground">Commission</p>
                       </div>
@@ -397,55 +395,57 @@ export default function MasterAdminDashboard() {
     // Partner Wallets page with admin controls
     if (currentPath.includes('/admin/partner-wallets')) {
       return (
-        <div className="space-y-6">
-          <h1 className="text-2xl font-display font-bold text-foreground">Partner Wallet Management</h1>
+        <div className="space-y-4 md:space-y-6">
+          <h1 className="text-xl md:text-2xl font-display font-bold text-foreground">Partner Wallet Management</h1>
           <div className="grid gap-4">
             {partners.map((partner) => (
               <Card key={partner.id}>
-                <CardContent className="p-4 flex items-center justify-between">
-                  <div className="flex items-center gap-4">
-                    <div className="w-12 h-12 bg-emerald-100 rounded-full flex items-center justify-center">
-                      <CreditCard className="w-6 h-6 text-emerald-600" />
+                <CardContent className="p-4">
+                  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-4">
+                    <div className="flex items-center gap-4">
+                      <div className="w-12 h-12 bg-emerald-100 rounded-full flex items-center justify-center shrink-0">
+                        <CreditCard className="w-6 h-6 text-emerald-600" />
+                      </div>
+                      <div className="min-w-0">
+                        <h3 className="font-semibold truncate">{partner.name}</h3>
+                        <p className="text-sm text-muted-foreground truncate">{partner.franchise_id} • {partner.email}</p>
+                      </div>
                     </div>
-                    <div>
-                      <h3 className="font-semibold">{partner.name}</h3>
-                      <p className="text-sm text-muted-foreground">{partner.franchise_id} • {partner.email}</p>
-                    </div>
-                  </div>
-                  <div className="flex items-center gap-6">
-                    <div className="text-center">
-                      <p className="font-semibold text-emerald-600">₹{partner.wallet_balance.toLocaleString()}</p>
-                      <p className="text-xs text-muted-foreground">Current Balance</p>
-                    </div>
-                    <div className="text-center">
-                      <p className="font-semibold">₹{partner.total_wallet_loaded.toLocaleString()}</p>
-                      <p className="text-xs text-muted-foreground">Total Loaded</p>
-                    </div>
-                    <div className="flex gap-2">
-                      <Button 
-                        variant="outline" 
-                        size="sm" 
-                        className="gap-1 text-emerald-600 border-emerald-200 hover:bg-emerald-50"
-                        onClick={() => {
-                          setSelectedPartner(partner);
-                          setWalletDialogType('add');
-                          setWalletDialogOpen(true);
-                        }}
-                      >
-                        <Plus className="w-3 h-3" /> Add
-                      </Button>
-                      <Button 
-                        variant="outline" 
-                        size="sm" 
-                        className="gap-1 text-red-600 border-red-200 hover:bg-red-50"
-                        onClick={() => {
-                          setSelectedPartner(partner);
-                          setWalletDialogType('deduct');
-                          setWalletDialogOpen(true);
-                        }}
-                      >
-                        <Minus className="w-3 h-3" /> Deduct
-                      </Button>
+                    <div className="flex flex-wrap items-center gap-4 sm:gap-6">
+                      <div className="text-left sm:text-center">
+                        <p className="font-semibold text-emerald-600">₹{partner.wallet_balance.toLocaleString()}</p>
+                        <p className="text-xs text-muted-foreground">Current Balance</p>
+                      </div>
+                      <div className="text-left sm:text-center">
+                        <p className="font-semibold">₹{partner.total_wallet_loaded.toLocaleString()}</p>
+                        <p className="text-xs text-muted-foreground">Total Loaded</p>
+                      </div>
+                      <div className="flex gap-2">
+                        <Button 
+                          variant="outline" 
+                          size="sm" 
+                          className="gap-1 text-emerald-600 border-emerald-200 hover:bg-emerald-50"
+                          onClick={() => {
+                            setSelectedPartner(partner);
+                            setWalletDialogType('add');
+                            setWalletDialogOpen(true);
+                          }}
+                        >
+                          <Plus className="w-3 h-3" /> Add
+                        </Button>
+                        <Button 
+                          variant="outline" 
+                          size="sm" 
+                          className="gap-1 text-red-600 border-red-200 hover:bg-red-50"
+                          onClick={() => {
+                            setSelectedPartner(partner);
+                            setWalletDialogType('deduct');
+                            setWalletDialogOpen(true);
+                          }}
+                        >
+                          <Minus className="w-3 h-3" /> Deduct
+                        </Button>
+                      </div>
                     </div>
                   </div>
                 </CardContent>
@@ -456,10 +456,34 @@ export default function MasterAdminDashboard() {
           {/* Recent Wallet Transactions */}
           <Card>
             <CardHeader>
-              <CardTitle>Recent Wallet Transactions</CardTitle>
+              <CardTitle className="text-base md:text-lg">Recent Wallet Transactions</CardTitle>
             </CardHeader>
-            <CardContent>
-              <div className="overflow-x-auto">
+            <CardContent className="p-0 md:p-6">
+              {/* Mobile Card View */}
+              <div className="block md:hidden divide-y">
+                {walletTransactions.slice(0, 10).map((txn) => {
+                  const partner = partners.find(p => p.id === txn.partner_id);
+                  return (
+                    <div key={txn.id} className="p-4">
+                      <div className="flex items-center justify-between mb-2">
+                        <span className="font-medium">{partner?.name || 'Unknown'}</span>
+                        <Badge className={txn.transaction_type === 'credit' ? 'bg-emerald-100 text-emerald-700' : 'bg-red-100 text-red-700'}>
+                          {txn.transaction_type}
+                        </Badge>
+                      </div>
+                      <div className="flex items-center justify-between text-sm">
+                        <span className={`font-semibold ${txn.transaction_type === 'credit' ? 'text-emerald-600' : 'text-red-600'}`}>
+                          {txn.transaction_type === 'credit' ? '+' : '-'}₹{txn.amount}
+                        </span>
+                        <span className="text-muted-foreground">{format(new Date(txn.created_date), 'dd MMM yyyy')}</span>
+                      </div>
+                      <p className="text-xs text-muted-foreground mt-1 truncate">{txn.description}</p>
+                    </div>
+                  );
+                })}
+              </div>
+              {/* Desktop Table View */}
+              <div className="hidden md:block overflow-x-auto">
                 <table className="w-full">
                   <thead className="bg-muted/50">
                     <tr>
@@ -501,11 +525,30 @@ export default function MasterAdminDashboard() {
     // Transactions page
     if (currentPath.includes('/admin/transactions')) {
       return (
-        <div className="space-y-6">
-          <h1 className="text-2xl font-display font-bold text-foreground">All Transactions</h1>
+        <div className="space-y-4 md:space-y-6">
+          <h1 className="text-xl md:text-2xl font-display font-bold text-foreground">All Transactions</h1>
           <Card>
             <CardContent className="p-0">
-              <div className="overflow-x-auto">
+              {/* Mobile Card View */}
+              <div className="block md:hidden divide-y">
+                {allTxns.slice(0, 20).map((txn) => (
+                  <div key={txn.id} className="p-4">
+                    <div className="flex items-center justify-between mb-2">
+                      <span className="font-medium truncate flex-1 mr-2">{txn.client_name || txn.user_email}</span>
+                      <Badge className={txn.status === 'success' ? 'bg-emerald-100 text-emerald-700' : txn.status === 'pending' ? 'bg-amber-100 text-amber-700' : 'bg-red-100 text-red-700'}>
+                        {txn.status}
+                      </Badge>
+                    </div>
+                    <div className="flex items-center justify-between text-sm">
+                      <span className="font-semibold">₹{txn.amount}</span>
+                      <span className="text-muted-foreground">{format(new Date(txn.created_date), 'dd MMM yyyy')}</span>
+                    </div>
+                    <p className="text-xs text-muted-foreground mt-1 font-mono truncate">{txn.transaction_id.slice(0, 16)}...</p>
+                  </div>
+                ))}
+              </div>
+              {/* Desktop Table View */}
+              <div className="hidden md:block overflow-x-auto">
                 <table className="w-full">
                   <thead className="bg-muted/50">
                     <tr>
@@ -567,11 +610,11 @@ export default function MasterAdminDashboard() {
       const inProgressCount = scoreRepairRequests.filter(r => r.status === 'in_progress').length;
       
       return (
-        <div className="space-y-6">
-          <div className="flex items-center justify-between">
+        <div className="space-y-4 md:space-y-6">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-2">
             <div>
-              <h1 className="text-2xl font-display font-bold text-foreground">Score Repair Requests</h1>
-              <p className="text-muted-foreground">{pendingCount} pending • {inProgressCount} in progress</p>
+              <h1 className="text-xl md:text-2xl font-display font-bold text-foreground">Score Repair Requests</h1>
+              <p className="text-sm text-muted-foreground">{pendingCount} pending • {inProgressCount} in progress</p>
             </div>
           </div>
           
@@ -579,28 +622,28 @@ export default function MasterAdminDashboard() {
             {scoreRepairRequests.map((request) => (
               <Card key={request.id} className="hover:shadow-md transition-shadow">
                 <CardContent className="p-4">
-                  <div className="flex items-center justify-between">
+                  <div className="flex flex-col lg:flex-row lg:items-center justify-between gap-4">
                     <div className="flex items-center gap-4">
-                      <div className="w-12 h-12 bg-amber-100 rounded-full flex items-center justify-center">
+                      <div className="w-12 h-12 bg-amber-100 rounded-full flex items-center justify-center shrink-0">
                         <Wrench className="w-6 h-6 text-amber-600" />
                       </div>
-                      <div>
-                        <h3 className="font-semibold">{request.user_name}</h3>
-                        <p className="text-sm text-muted-foreground">{request.user_email}</p>
+                      <div className="min-w-0">
+                        <h3 className="font-semibold truncate">{request.user_name}</h3>
+                        <p className="text-sm text-muted-foreground truncate">{request.user_email}</p>
                         <p className="text-xs text-muted-foreground">{request.user_mobile}</p>
                       </div>
                     </div>
-                    <div className="flex items-center gap-6">
-                      <div className="text-center">
-                        <p className="text-sm text-muted-foreground">Current</p>
-                        <p className="font-bold text-red-600">{request.current_score}</p>
-                      </div>
-                      <div className="text-center">
+                    <div className="flex flex-wrap items-center gap-3 lg:gap-6">
+                      <div className="flex items-center gap-4">
+                        <div className="text-center">
+                          <p className="text-xs text-muted-foreground">Current</p>
+                          <p className="font-bold text-red-600">{request.current_score}</p>
+                        </div>
                         <span className="text-muted-foreground">→</span>
-                      </div>
-                      <div className="text-center">
-                        <p className="text-sm text-muted-foreground">Target</p>
-                        <p className="font-bold text-emerald-600">{request.target_score}</p>
+                        <div className="text-center">
+                          <p className="text-xs text-muted-foreground">Target</p>
+                          <p className="font-bold text-emerald-600">{request.target_score}</p>
+                        </div>
                       </div>
                       <Badge className={
                         request.status === 'completed' ? 'bg-emerald-100 text-emerald-700' :
@@ -644,13 +687,13 @@ export default function MasterAdminDashboard() {
     // Settings page
     if (currentPath.includes('/admin/settings')) {
       return (
-        <div className="space-y-6">
-          <h1 className="text-2xl font-display font-bold text-foreground">Admin Settings</h1>
+        <div className="space-y-4 md:space-y-6">
+          <h1 className="text-xl md:text-2xl font-display font-bold text-foreground">Admin Settings</h1>
           <Card>
-            <CardContent className="p-8 text-center">
-              <Settings className="w-16 h-16 text-slate-300 mx-auto mb-4" />
-              <h3 className="text-lg font-semibold text-slate-700 mb-2">Settings Coming Soon</h3>
-              <p className="text-muted-foreground">Configure system settings, bureau APIs, pricing and more.</p>
+            <CardContent className="p-6 md:p-8 text-center">
+              <Settings className="w-12 md:w-16 h-12 md:h-16 text-slate-300 mx-auto mb-4" />
+              <h3 className="text-base md:text-lg font-semibold text-slate-700 mb-2">Settings Coming Soon</h3>
+              <p className="text-sm md:text-base text-muted-foreground">Configure system settings, bureau APIs, pricing and more.</p>
             </CardContent>
           </Card>
         </div>
@@ -660,31 +703,31 @@ export default function MasterAdminDashboard() {
     // Default Dashboard view
     return (
       <>
-        <div className="mb-8">
-          <h1 className="text-2xl font-display font-bold text-foreground">Master Admin Dashboard</h1>
-          <p className="text-muted-foreground">Welcome back, Admin</p>
+        <div className="mb-6 md:mb-8">
+          <h1 className="text-xl md:text-2xl font-display font-bold text-foreground">Master Admin Dashboard</h1>
+          <p className="text-sm md:text-base text-muted-foreground">Welcome back, Admin</p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 mb-8">
+        <div className="grid grid-cols-2 md:grid-cols-2 lg:grid-cols-4 gap-3 md:gap-6 mb-6 md:mb-8">
           <StatsCard title="Total Revenue" value={`₹${totalRevenue.toLocaleString()}`} icon={IndianRupee} color="emerald" delay={0} />
           <StatsCard title="Total Users" value={totalUsers} icon={Users} color="blue" delay={0.1} />
           <StatsCard title="Reports Generated" value={totalReports} icon={FileText} color="purple" delay={0.2} />
           <StatsCard title="Active Partners" value={`${activePartners}/${partners.length}`} icon={Building2} color="teal" delay={0.3} />
         </div>
 
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.2 }}>
             <Card className="shadow-card">
               <CardHeader>
-                <CardTitle className="text-lg">Revenue (Last 7 Days)</CardTitle>
+                <CardTitle className="text-base md:text-lg">Revenue (Last 7 Days)</CardTitle>
               </CardHeader>
               <CardContent>
-                <div className="h-64">
+                <div className="h-48 md:h-64">
                   <ResponsiveContainer width="100%" height="100%">
                     <LineChart data={chartData}>
                       <CartesianGrid strokeDasharray="3 3" stroke="hsl(var(--muted))" />
-                      <XAxis dataKey="date" tick={{ fontSize: 12 }} stroke="hsl(var(--muted-foreground))" />
-                      <YAxis tick={{ fontSize: 12 }} stroke="hsl(var(--muted-foreground))" />
+                      <XAxis dataKey="date" tick={{ fontSize: 10 }} stroke="hsl(var(--muted-foreground))" />
+                      <YAxis tick={{ fontSize: 10 }} stroke="hsl(var(--muted-foreground))" />
                       <Tooltip />
                       <Line type="monotone" dataKey="revenue" stroke="hsl(var(--primary))" strokeWidth={2} dot={{ fill: 'hsl(var(--primary))' }} />
                     </LineChart>
@@ -697,25 +740,25 @@ export default function MasterAdminDashboard() {
           <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} transition={{ delay: 0.3 }}>
             <Card className="shadow-card">
               <CardHeader>
-                <CardTitle className="text-lg">Recent Reports</CardTitle>
+                <CardTitle className="text-base md:text-lg">Recent Reports</CardTitle>
               </CardHeader>
               <CardContent>
                 <div className="space-y-3">
                   {allReports.slice(0, 5).map((report) => (
                     <div 
                       key={report.id} 
-                      className="flex items-center justify-between p-3 bg-muted/50 rounded-lg cursor-pointer hover:bg-muted" 
+                      className="flex items-center justify-between p-2 md:p-3 bg-muted/50 rounded-lg cursor-pointer hover:bg-muted" 
                       onClick={() => {
                         sessionStorage.setItem('viewReport', JSON.stringify(report));
                         navigate(`/credit-report?reportId=${report.id}&viewer=admin`);
                       }}
                     >
-                      <div>
-                        <p className="font-medium text-foreground">{report.full_name}</p>
-                        <p className="text-sm text-muted-foreground">{report.pan_number} • {report.initiated_by === 'partner' ? 'Partner' : 'User'}</p>
+                      <div className="min-w-0 flex-1 mr-2">
+                        <p className="font-medium text-foreground text-sm md:text-base truncate">{report.full_name}</p>
+                        <p className="text-xs md:text-sm text-muted-foreground truncate">{report.pan_number} • {report.initiated_by === 'partner' ? 'Partner' : 'User'}</p>
                       </div>
-                      <div className="text-right">
-                        <p className="font-bold text-primary">{report.average_score}</p>
+                      <div className="text-right shrink-0">
+                        <p className="font-bold text-primary text-sm md:text-base">{report.average_score}</p>
                         <p className="text-xs text-muted-foreground">{format(new Date(report.created_date), 'dd MMM')}</p>
                       </div>
                     </div>
@@ -730,10 +773,10 @@ export default function MasterAdminDashboard() {
   };
 
   return (
-    <div className="min-h-screen bg-background flex">
+    <div className="min-h-screen bg-background flex flex-col lg:flex-row">
       <MasterAdminSidebar currentPage="MasterAdminDashboard" onLogout={handleLogout} />
       
-      <main className="flex-1 p-8 overflow-auto">
+      <main className="flex-1 p-4 pt-20 lg:pt-4 md:p-6 lg:p-8 overflow-auto">
         <div className="max-w-7xl mx-auto">
           {renderContent()}
         </div>

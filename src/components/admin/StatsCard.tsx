@@ -63,15 +63,15 @@ const StatsCard: React.FC<StatsCardProps> = ({
       animate={{ opacity: 1, y: 0 }}
       transition={{ delay, duration: 0.3 }}
     >
-      <Card className={`border ${classes.border} shadow-card hover:shadow-lg transition-shadow`}>
-        <CardContent className="pt-6">
-          <div className="flex items-center gap-4">
-            <div className={`w-12 h-12 ${classes.bg} rounded-xl flex items-center justify-center shrink-0`}>
-              <Icon className={`w-6 h-6 ${classes.icon}`} />
+      <Card className={`border ${classes.border} shadow-card hover:shadow-lg transition-shadow h-full`}>
+        <CardContent className="p-3 md:pt-6 md:px-6">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-2 sm:gap-4">
+            <div className={`w-10 h-10 md:w-12 md:h-12 ${classes.bg} rounded-xl flex items-center justify-center shrink-0`}>
+              <Icon className={`w-5 h-5 md:w-6 md:h-6 ${classes.icon}`} />
             </div>
-            <div className="min-w-0">
-              <p className="text-sm text-muted-foreground truncate">{title}</p>
-              <p className="text-2xl font-bold text-foreground truncate">{value}</p>
+            <div className="min-w-0 w-full">
+              <p className="text-xs md:text-sm text-muted-foreground truncate">{title}</p>
+              <p className="text-lg md:text-2xl font-bold text-foreground truncate">{value}</p>
               {subtitle && (
                 <p className="text-xs text-muted-foreground mt-0.5">{subtitle}</p>
               )}
