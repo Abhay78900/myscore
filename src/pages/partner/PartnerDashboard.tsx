@@ -12,6 +12,7 @@ import WalletCard from '@/components/partner/WalletCard';
 import GenerateReportDialog from '@/components/partner/GenerateReportDialog';
 import PartnerReportHistory from '@/components/partner/PartnerReportHistory';
 import WalletTransactionHistory from '@/components/partner/WalletTransactionHistory';
+import { PullToRefresh } from '@/components/ui/pull-to-refresh';
 import { mockPartners, mockCreditReports, mockWalletTransactions, bureauConfig } from '@/data/mockData';
 import { CreditReport, Partner, WalletTransaction, Transaction } from '@/types';
 import { toast } from 'sonner';
@@ -25,6 +26,7 @@ export default function PartnerDashboard() {
   const location = useLocation();
   const [copied, setCopied] = useState(false);
   const [showGenerateDialog, setShowGenerateDialog] = useState(false);
+  const [isRefreshing, setIsRefreshing] = useState(false);
   
   // Get partner from storage based on logged-in user
   const getLoggedInPartner = (): Partner => {
@@ -55,6 +57,16 @@ export default function PartnerDashboard() {
     mockWalletTransactions.filter(t => t.partner_id === getLoggedInPartner().id)
   );
   const [transactions, setTransactions] = useState<Transaction[]>([]);
+
+  const handleRefresh = async () => {
+    setIsRefreshing(true);
+    // Simulate refresh delay
+    await new Promise(resolve => setTimeout(resolve, 1000));
+    // Refresh partner data
+    setPartner(getLoggedInPartner());
+    toast.success('Data refreshed');
+    setIsRefreshing(false);
+  };
 
   const handleLogout = () => {
     sessionStorage.clear();
@@ -234,13 +246,13 @@ export default function PartnerDashboard() {
   const renderContent = () => {
     if (isReportsPage) {
       return (
-        <div className="space-y-6">
-          <div className="flex items-center justify-between">
+        <div className="space-y-4 md:space-y-6">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div>
-              <h1 className="text-2xl font-display font-bold text-foreground">Reports History</h1>
-              <p className="text-muted-foreground">View all generated credit reports</p>
+              <h1 className="text-xl md:text-2xl font-display font-bold text-foreground">Reports History</h1>
+              <p className="text-sm md:text-base text-muted-foreground">View all generated credit reports</p>
             </div>
-            <Button onClick={() => setShowGenerateDialog(true)} className="gap-2 bg-purple-600 hover:bg-purple-700">
+            <Button onClick={() => setShowGenerateDialog(true)} className="gap-2 bg-purple-600 hover:bg-purple-700 w-full sm:w-auto">
               <Plus className="w-4 h-4" /> Generate New Report
             </Button>
           </div>
@@ -263,21 +275,21 @@ export default function PartnerDashboard() {
 
     if (isClientsPage) {
       return (
-        <div className="space-y-6">
-          <div className="flex items-center justify-between">
+        <div className="space-y-4 md:space-y-6">
+          <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-3">
             <div>
-              <h1 className="text-2xl font-display font-bold text-foreground">My Clients</h1>
-              <p className="text-muted-foreground">Manage your client base</p>
+              <h1 className="text-xl md:text-2xl font-display font-bold text-foreground">My Clients</h1>
+              <p className="text-sm md:text-base text-muted-foreground">Manage your client base</p>
             </div>
-            <Button onClick={() => setShowGenerateDialog(true)} className="gap-2 bg-purple-600 hover:bg-purple-700">
+            <Button onClick={() => setShowGenerateDialog(true)} className="gap-2 bg-purple-600 hover:bg-purple-700 w-full sm:w-auto">
               <Plus className="w-4 h-4" /> Add New Client
             </Button>
           </div>
           <Card>
-            <CardContent className="p-8 text-center">
-              <Users className="w-16 h-16 text-slate-300 mx-auto mb-4" />
-              <h3 className="text-lg font-semibold text-slate-700 mb-2">Client Management Coming Soon</h3>
-              <p className="text-muted-foreground">You can generate reports for clients using the button above.</p>
+            <CardContent className="p-6 md:p-8 text-center">
+              <Users className="w-12 md:w-16 h-12 md:h-16 text-slate-300 mx-auto mb-4" />
+              <h3 className="text-base md:text-lg font-semibold text-slate-700 mb-2">Client Management Coming Soon</h3>
+              <p className="text-sm md:text-base text-muted-foreground">You can generate reports for clients using the button above.</p>
             </CardContent>
           </Card>
         </div>
@@ -286,12 +298,12 @@ export default function PartnerDashboard() {
 
     if (isWalletPage) {
       return (
-        <div className="space-y-6">
+        <div className="space-y-4 md:space-y-6">
           <div>
-            <h1 className="text-2xl font-display font-bold text-foreground">Wallet Management</h1>
-            <p className="text-muted-foreground">Load funds and view transaction history</p>
+            <h1 className="text-xl md:text-2xl font-display font-bold text-foreground">Wallet Management</h1>
+            <p className="text-sm md:text-base text-muted-foreground">Load funds and view transaction history</p>
           </div>
-          <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+          <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6">
             <div className="lg:col-span-1">
               <WalletCard partner={partner} onLoadFunds={handleLoadFunds} />
             </div>
@@ -305,16 +317,16 @@ export default function PartnerDashboard() {
 
     if (isMarketingPage) {
       return (
-        <div className="space-y-6">
+        <div className="space-y-4 md:space-y-6">
           <div>
-            <h1 className="text-2xl font-display font-bold text-foreground">Marketing & Referrals</h1>
-            <p className="text-muted-foreground">Grow your business with referral codes</p>
+            <h1 className="text-xl md:text-2xl font-display font-bold text-foreground">Marketing & Referrals</h1>
+            <p className="text-sm md:text-base text-muted-foreground">Grow your business with referral codes</p>
           </div>
           <Card>
-            <CardContent className="p-8 text-center">
-              <FileText className="w-16 h-16 text-slate-300 mx-auto mb-4" />
-              <h3 className="text-lg font-semibold text-slate-700 mb-2">Marketing Tools Coming Soon</h3>
-              <p className="text-muted-foreground">Share your referral code: <strong>{partner.franchise_id}</strong></p>
+            <CardContent className="p-6 md:p-8 text-center">
+              <FileText className="w-12 md:w-16 h-12 md:h-16 text-slate-300 mx-auto mb-4" />
+              <h3 className="text-base md:text-lg font-semibold text-slate-700 mb-2">Marketing Tools Coming Soon</h3>
+              <p className="text-sm md:text-base text-muted-foreground">Share your referral code: <strong>{partner.franchise_id}</strong></p>
             </CardContent>
           </Card>
         </div>
@@ -325,35 +337,33 @@ export default function PartnerDashboard() {
     return (
       <>
         {/* Referral Code Card */}
-        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="mb-8">
+        <motion.div initial={{ opacity: 0, y: 20 }} animate={{ opacity: 1, y: 0 }} className="mb-4 md:mb-8">
           <Card className="bg-gradient-to-r from-purple-600 to-purple-700 text-white border-0">
-            <CardContent className="p-6">
+            <CardContent className="p-4 md:p-6">
               <div className="flex flex-col md:flex-row md:items-center justify-between gap-4">
                 <div>
-                  <p className="text-purple-200 text-sm mb-1">Your Franchise ID / Referral Code</p>
-                  <div className="flex items-center gap-3">
-                    <code className="text-3xl font-bold tracking-wider">{partner.franchise_id}</code>
+                  <p className="text-purple-200 text-xs md:text-sm mb-1">Your Franchise ID / Referral Code</p>
+                  <div className="flex items-center gap-2 md:gap-3">
+                    <code className="text-xl md:text-3xl font-bold tracking-wider">{partner.franchise_id}</code>
                     <Button variant="ghost" size="icon" onClick={copyReferralCode} className="text-white hover:bg-white/20">
-                      {copied ? <Check className="w-5 h-5" /> : <Copy className="w-5 h-5" />}
+                      {copied ? <Check className="w-4 h-4 md:w-5 md:h-5" /> : <Copy className="w-4 h-4 md:w-5 md:h-5" />}
                     </Button>
                   </div>
                 </div>
-                <div className="flex gap-2">
-                  <Button onClick={() => setShowGenerateDialog(true)} className="bg-white text-purple-700 hover:bg-purple-50 gap-2">
-                    <FileText className="w-4 h-4" /> Generate Report
-                  </Button>
-                </div>
+                <Button onClick={() => setShowGenerateDialog(true)} className="bg-white text-purple-700 hover:bg-purple-50 gap-2 w-full md:w-auto">
+                  <FileText className="w-4 h-4" /> Generate Report
+                </Button>
               </div>
             </CardContent>
           </Card>
         </motion.div>
 
         {/* Wallet & Stats */}
-        <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 mb-8">
+        <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 md:gap-6 mb-4 md:mb-8">
           <div className="lg:col-span-1">
             <WalletCard partner={partner} onLoadFunds={handleLoadFunds} />
           </div>
-          <div className="lg:col-span-2 grid grid-cols-2 gap-4">
+          <div className="lg:col-span-2 grid grid-cols-2 gap-3 md:gap-4">
             <StatsCard title="Total Sales" value={partner.total_sales} icon={FileText} color="blue" delay={0.1} />
             <StatsCard title="Revenue Generated" value={`₹${partner.total_revenue.toLocaleString()}`} icon={TrendingUp} color="purple" delay={0.2} />
             <StatsCard title="Commission Earned" value={`₹${partner.total_commission_earned.toLocaleString()}`} icon={IndianRupee} color="amber" delay={0.3} />
@@ -362,7 +372,7 @@ export default function PartnerDashboard() {
         </div>
 
         {/* Reports & Transactions */}
-        <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
+        <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 md:gap-6">
           <PartnerReportHistory 
             reports={allPartnerReports.slice(0, 5)} 
             transactions={transactions}
@@ -382,20 +392,26 @@ export default function PartnerDashboard() {
   };
 
   return (
-    <div className="min-h-screen bg-background flex">
+    <div className="min-h-screen bg-background flex flex-col lg:flex-row">
       <PartnerSidebar currentPage="PartnerDashboard" onLogout={handleLogout} partner={partner} />
       
-      <main className="flex-1 px-6 py-8 overflow-auto">
-        <div className="max-w-7xl mx-auto">
-          {!isReportsPage && !isClientsPage && !isWalletPage && !isMarketingPage && (
-            <div className="mb-6">
-              <h1 className="text-2xl font-display font-bold text-foreground">Partner Dashboard</h1>
-              <p className="text-muted-foreground">Welcome back, {partner.name}</p>
-            </div>
-          )}
-          {renderContent()}
-        </div>
-      </main>
+      <PullToRefresh 
+        onRefresh={handleRefresh} 
+        className="flex-1 pt-16 lg:pt-0 overflow-auto"
+        isEnabled={true}
+      >
+        <main className="p-4 md:px-6 md:py-8">
+          <div className="max-w-7xl mx-auto">
+            {!isReportsPage && !isClientsPage && !isWalletPage && !isMarketingPage && (
+              <div className="mb-4 md:mb-6">
+                <h1 className="text-xl md:text-2xl font-display font-bold text-foreground">Partner Dashboard</h1>
+                <p className="text-sm md:text-base text-muted-foreground">Welcome back, {partner.name}</p>
+              </div>
+            )}
+            {renderContent()}
+          </div>
+        </main>
+      </PullToRefresh>
 
       <GenerateReportDialog
         isOpen={showGenerateDialog}

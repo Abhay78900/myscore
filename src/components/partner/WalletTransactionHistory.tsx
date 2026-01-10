@@ -56,47 +56,47 @@ export default function WalletTransactionHistory({ transactions }: WalletTransac
       transition={{ delay: 0.4 }}
     >
       <Card>
-        <CardHeader>
-          <CardTitle className="text-lg flex items-center gap-2">
+        <CardHeader className="pb-3">
+          <CardTitle className="text-base md:text-lg flex items-center gap-2">
             <Wallet className="w-5 h-5 text-emerald-600" />
             Wallet Transactions
           </CardTitle>
         </CardHeader>
-        <CardContent>
-          <div className="space-y-3">
+        <CardContent className="p-3 md:p-6 pt-0">
+          <div className="space-y-2 md:space-y-3">
             {transactions.slice(0, 10).map((txn) => (
               <div
                 key={txn.id}
-                className="flex items-center justify-between p-3 bg-slate-50 rounded-lg hover:bg-slate-100 transition-colors"
+                className="flex items-center justify-between p-2 md:p-3 bg-slate-50 rounded-lg hover:bg-slate-100 transition-colors"
               >
-                <div className="flex items-center gap-3">
-                  <div className={`w-10 h-10 rounded-full flex items-center justify-center ${
+                <div className="flex items-center gap-2 md:gap-3 min-w-0 flex-1">
+                  <div className={`w-8 h-8 md:w-10 md:h-10 rounded-full flex items-center justify-center shrink-0 ${
                     txn.transaction_type === 'credit' 
                       ? 'bg-emerald-100 text-emerald-600' 
                       : 'bg-red-100 text-red-600'
                   }`}>
                     {txn.transaction_type === 'credit' 
-                      ? <ArrowDownLeft className="w-5 h-5" />
-                      : <ArrowUpRight className="w-5 h-5" />
+                      ? <ArrowDownLeft className="w-4 h-4 md:w-5 md:h-5" />
+                      : <ArrowUpRight className="w-4 h-4 md:w-5 md:h-5" />
                     }
                   </div>
-                  <div>
-                    <p className="font-medium text-slate-800 text-sm">
+                  <div className="min-w-0 flex-1">
+                    <p className="font-medium text-slate-800 text-xs md:text-sm truncate">
                       {txn.description || (txn.transaction_type === 'credit' ? 'Wallet Top-up' : 'Report Purchase')}
                     </p>
-                    <div className="flex items-center gap-2 text-xs text-slate-500">
-                      <Clock className="w-3 h-3" />
-                      {format(new Date(txn.created_date), 'dd MMM yyyy, HH:mm')}
+                    <div className="flex items-center gap-1 md:gap-2 text-xs text-slate-500">
+                      <Clock className="w-3 h-3 hidden sm:block" />
+                      <span className="truncate">{format(new Date(txn.created_date), 'dd MMM, HH:mm')}</span>
                     </div>
                   </div>
                 </div>
-                <div className="text-right">
-                  <p className={`font-semibold ${
+                <div className="text-right shrink-0 ml-2">
+                  <p className={`font-semibold text-sm md:text-base ${
                     txn.transaction_type === 'credit' ? 'text-emerald-600' : 'text-red-600'
                   }`}>
                     {txn.transaction_type === 'credit' ? '+' : '-'}₹{txn.amount.toLocaleString()}
                   </p>
-                  <p className="text-xs text-slate-500">
+                  <p className="text-xs text-slate-500 hidden sm:block">
                     Bal: ₹{txn.balance_after?.toLocaleString() || 0}
                   </p>
                 </div>
